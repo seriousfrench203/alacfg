@@ -73,4 +73,4 @@ nano /etc/doas.conf
 	permit :wheel
 su kon
 git clone https://github.com/kono7/dwm-6.2 && git clone https://git.suckless.org/dmenu && git clone https://github.com/mentaloutlaw/slstatus
-
+chmod u+s /usr/bin/Xorg
