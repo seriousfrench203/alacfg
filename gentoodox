@@ -78,7 +78,7 @@ chmod u+s /usr/bin/Xorg
 PLEASE SELECT PROPER BOOT DEVICE FIX:
 hopefully this works
 
-root #cp /boot/efi/gentoo/grubx64.efi /boot/efi/efi/bootx64.efi
+cp /boot/efi/gentoo/grubx64.efi /boot/efi/efi/bootx64.efi
 
 if that doesnt work:
  mkdir /mnt/gentoo/boot/EFI/BOOT
