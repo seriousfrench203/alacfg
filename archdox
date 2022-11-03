@@ -1,0 +1,103 @@
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+!!! MAKE SURE EFI IS ON !!!
+
+
+from na beginning: (condensed)
+gdisk expert zap
+
+cgdisk: boot is EF00, root blank, swap 8200
+
+mkfs.fat -F32 /dev/sd?1
+
+	mkswap /dev/sd??
+	swapon /dev/sd??
+mkfs.ext4 /dev/sd?? (root/home)
+
+mount /dev/sd??(root) /mnt
+mkdir /mnt/boot 
+mkdir /mnt/home
+mount /dev/sd??(boot) /mnt/boot
+mount /dev/sd??(home) /mnt/home
+
+pacman -Sy
+pacstrap -i /mnt base base-devel linux linux-headers
+
+genfstab -U -p /mnt >> /mnt/etc/fstab
+
+arch-chroot /mnt
+
+pacman -Sy
+
+pacman -S nano bash-completion
+
+nano /etc/locale.gen
+locale-gen
+echo LANG=en_US.UTF-8 > /etc/locale.conf
+export LANG=en_US.UTF-8
+ln -s /usr/share/zoneinfo/US/Eastern > /etc/localtime
+hwclock --systohc 
+echo archbox > /etc/hostname
+nano /etc/pacman.conf
+systemctl enable fstrim.timer (for ssd)
+pacman -Sy
+passwd
+useradd -m -g users -G wheel,storage,power -s /bin/bash swag
+passwd swag
+EDITOR=nano visudo
+	uncomment wheel
+	Defaults rootpw
+mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+bootctl install
+nano /boot/loader/entries/arch.conf
+	title kon archbox
+	linux /vmlinuz-linux
+	initrd /intel-ucode.img
+	initrd /initramfs-linux.img
+pacman -S intel-ucode
+echo "options root=PARTUUID=$(blkid -s PARTUUID -o value /dev/sd??) rw" >> /boot/loader/entries/(arch.conf)
+pacman -S dhcpcd networkmanager
+systemctl enable NetworkManager
+systemctl enable dhcpcd@(Ethernet/wifi device name).service
+
+nvidia time...
+
+pacman -S linux-headers
+pacman -S nvidia-dkms nvidia-utils opencl-nvidia libglvnd lib32-libglvnd lib32-nvidia-utils lib32-opencl-nvidia nvidia-settings
+nano /etc/mkinitcpio.conf
+	first uncomment go to:
+	MODULES=()
+	make it
+	MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+	save exit
+nano /boot/loader/entries/arch.conf
+in same 5th line and "nvidia-drm.modeset=1" after rw
+	save exit
+mkdir /etc/pacman.d/hooks/
+nano /etc/pacman.d/hooks/nvidia
+	[Trigger]
+	Operation=Install
+	Operation=Upgrade
+	Operation=Remove
+	Type=Package
+	Target=nvidia
+	
+	[Action]
+	Depends=mkinitcpio
+	When=PostTransaction
+	Exec=/usr/bin/mkinitcpio -P
+
+nvidia done!
+
+exit
+reboot
+
+sudo pacman -S xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm
+
+
+
