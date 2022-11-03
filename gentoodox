@@ -1,0 +1,76 @@
+cgdisk boot home root
+mkfs ext4 vfat
+mount /dev/root /mnt/gentoo
+cd /mnt/gentoo
+links https://gentoo.org/downloads
+tar xpvf stage3 --xattrs-include='*.*' --numeric-owner
+nano /mnt/gentoo/etc/portage/make.conf
+	MAKEOPTS="-j8"
+	USE="-gnome -kde -systemd X alsa pulseaudio"
+	ACCEPT_LICENSE="*"
+mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf
+mkdir -p /mnt/gentoo/etc/portage/repos.conf
+cp /mnt/gentoo/usr/share/portage/config/repos.conf /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
+cp --dereference /etc/resolv.conf /mnt/gentoo/etc
+mount --types proc /proc /mnt/gentoo/proc/
+mount --rbind /sys /mnt/gentoo/sys
+mount --make-rslave /mnt/gentoo/sys
+mount --rbind /dev /mnt/gentoo/dev
+mount --make-rslave /mnt/gentoo/dev
+mount --bind /run /mnt/gentoo/run
+mount --make-slave /mnt/gentoo/run
+chroot /mnt/gentoo /bin/bash
+source /etc/profile
+export PS1="(chrooted) ${PS1}"
+mount /dev/(boot) /boot
+mount /dev/(home) /home
+emerge-webrsync
+eselect proflie list
+eselect profile set (number)
+emerge --verbose --update --deep --newuse @world
+echo "America/New_York" > /etc/timezone
+emerge --config sys-libs/timezone-data
+nano /etc/locale.gen
+env-update && source /etc/profile
+emerge sys-kernel/linux-firmware pciutils
+emerge sys-kernel/gentoo-kernel-bin
+nano /etc/fstab
+	boot is 0 2;noauto,noatime
+	root is 0 1;noatime
+	home is 0 2;noatime
+nano /etc/conf.d/hostname
+emerge net-misc/dhcpcd netifrc
+rc-update add dhcpcd default
+rc-service dhcpcd start
+nano /etc/conf.d/net
+	config_(ifconfig)="dhcp"
+cd /etc/init.d
+ln -s net.lo net.(ifconfig)
+rc-update add net.(ifconfig)
+passwd
+nano /etc/portage/make.conf
+	GRUB_PLATFORMS="efi-64"
+emerge sys-boot/grub
+grub-install --target=x86_64-efi --efi-directory=/boot
+grub-mkconfig -o /boot/grub/grub.cfg
+emerge neofetch
+umount -l /mnt/gentoo/dev{/shm,/pts,}
+umount -R /mnt/gentoo
+reboot
+portageq envvar INPUT_DEVICES
+nano /etc/portage/make.conf
+	INPUT_DEVICES="input devices"
+	VIDEO_CARDS="nvidia"
+emerge xorg-server xorg-drivers
+env-update && source /etc/profile
+echo XSESSION="wm" > /etc/env.d/90xsession
+useradd -m -G users,wheel,audio -s /bin/bash kon
+passwd kon
+emerge -av xterm
+emerge git
+emerge doas
+nano /etc/doas.conf
+	permit :wheel
+su kon
+git clone https://github.com/kono7/dwm-6.2 && git clone https://git.suckless.org/dmenu && git clone https://github.com/mentaloutlaw/slstatus
+
