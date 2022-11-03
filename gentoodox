@@ -74,3 +74,12 @@ nano /etc/doas.conf
 su kon
 git clone https://github.com/kono7/dwm-6.2 && git clone https://git.suckless.org/dmenu && git clone https://github.com/mentaloutlaw/slstatus
 chmod u+s /usr/bin/Xorg
+
+PLEASE SELECT PROPER BOOT DEVICE FIX:
+hopefully this works
+
+root #cp /boot/efi/gentoo/grubx64.efi /boot/efi/efi/bootx64.efi
+
+if that doesnt work:
+ mkdir /mnt/gentoo/boot/EFI/BOOT
+ cp /mnt/gentoo/boot/EFI/gentoo/grubx64.efi /mnt/gentoo/boot/EFI/BOOT/BOOTX64.EFI
