@@ -26,7 +26,7 @@ mount /dev/sd??(boot) /mnt/boot
 mount /dev/sd??(home) /mnt/home
 
 pacman -Sy
-pacstrap -i /mnt base base-devel linux linux-headers
+pacstrap -K /mnt base base-devel linux linux-firmware
 
 genfstab -U -p /mnt >> /mnt/etc/fstab
 
